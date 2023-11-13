@@ -1,13 +1,12 @@
-# Amazon DynamoDB Lock Client
+# NoSQL Lock Client
 
-The Amazon DynamoDB Lock Client is a general purpose distributed locking library
-built for DynamoDB. The DynamoDB Lock Client supports both fine-grained and
-coarse-grained locking as the lock keys can be any arbitrary string, up to a
-certain length. DynamoDB Lock Client is an open-source project that will be
+The NoSQL Lock Client is a general purpose distributed locking library.
+The NoSQL Lock Client supports both fine-grained and coarse-grained 
+locking as the lock keys can be any arbitrary string, up to a certain 
+length. NoSQL Lock Client supports either MongoDB or D6ynamoDB as a backend
+for maintaining lock state. NoSQL Lock Client is an open-source project
 supported by the community. Please create issues in the GitHub repository with
 questions.
-
-[![Build Status](https://travis-ci.org/awslabs/dynamodb-lock-client.svg?branch=master)](https://travis-ci.org/awslabs/dynamodb-lock-client)
 
 ## Use cases
 A common use case for this lock client is:
@@ -15,14 +14,14 @@ let's say you have a distributed system that needs to periodically do work on a 
 (or a given customer, or any other object) and you want to make sure that two boxes don't work
 on the same campaign/customer at the same time. An easy way to fix this is to write a system that takes
 a lock on a customer, but fine-grained locking is a tough problem. This library attempts to simplify
-this locking problem on top of DynamoDB.
+this locking problem by maintaining lock state in either MongoDB or DynamoDB.
 
 Another use case is leader election. If you only want one host to be the leader, then this lock
 client is a great way to pick one. When the leader fails, it will fail over to another host
 within a customizable leaseDuration that you set.
 
 ## Getting Started
-To use the Amazon DynamoDB Lock Client, declare a dependency on the latest version of
+To use the NoSQL Lock Client, declare a dependency on the latest version of
 this artifact in Maven in your pom.xml.
 ```xml
 <dependency>
