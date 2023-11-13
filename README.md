@@ -3,7 +3,7 @@
 The NoSQL Lock Client is a general purpose distributed locking library.
 The NoSQL Lock Client supports both fine-grained and coarse-grained 
 locking as the lock keys can be any arbitrary string, up to a certain 
-length. NoSQL Lock Client supports either MongoDB or D6ynamoDB as a backend
+length. NoSQL Lock Client supports either MongoDB or DynamoDB as a backend
 for maintaining lock state. NoSQL Lock Client is an open-source project
 supported by the community. Please create issues in the GitHub repository with
 questions.
