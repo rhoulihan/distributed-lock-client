@@ -1,10 +1,16 @@
-# NoSQL Lock Client
+# Distributed Lock Client
 
-The NoSQL Lock Client is a general purpose distributed locking library.
-The NoSQL Lock Client supports both fine-grained and coarse-grained 
+The Distributed Lock Client is a general purpose distributed locking library forked
+from the Amazon DynamoDB Distributed Lock Client project to remove hard
+dependencies on DynamoDB, abstract of the data access layer, and enable support for
+other database platforms. This project introduces support for MongoDB. If you are 
+interested in adding support for other platforms feel free to implement and send a
+pull request.
+
+The Distributed Lock Client supports both fine-grained and coarse-grained 
 locking as the lock keys can be any arbitrary string, up to a certain 
-length. NoSQL Lock Client supports either MongoDB or DynamoDB as a backend
-for maintaining lock state. NoSQL Lock Client is an open-source project
+length. Distributed Lock Client supports either MongoDB or DynamoDB as a backend
+for maintaining lock state. Distributed Lock Client is an open-source project
 supported by the community. Please create issues in the GitHub repository with
 questions.
 
@@ -21,22 +27,84 @@ client is a great way to pick one. When the leader fails, it will fail over to a
 within a customizable leaseDuration that you set.
 
 ## Getting Started
-To use the NoSQL Lock Client, declare a dependency on the latest version of
-this artifact in Maven in your pom.xml.
-```xml
-<dependency>
-    <groupId>com.amazonaws</groupId>
-    <artifactId>dynamodb-lock-client</artifactId>
-    <version>1.2.0</version>
-</dependency>
+To use the Distributed Lock Client, clone tis repository and add a dependency on the local project
+in your pom.xml. NOTE: In the future this project will be repackaged to remove hard coded references to
+DynamoDB from the package name and published to the Maven Central Repository.
+
+Once the dependency is configured, you need to set up a table/collection to store the lock data.
+If you are using DynamoDB the hash key must be called `key`. For MongoDB the database name must
+be 'lockdb' and the collection name must be 'locks'. For your convenience, there are static methods 
+in the AmazonDynamoDBLockClient and MongoDBLockClient classes respectively called 
+`createLockTableInDynamoDB` and `createLockTableInMongoDB` that you can use to set up your table, 
+but it is also possible to set up the table in the AWS Console for DynamoDB or using the Mongo shell,
+Compass, or some other utility. For DynamoDB, the table should be created in advance, since it
+takes a couple minutes for DynamoDB to provision your table for you. The LockClient class has
+JavaDoc comments that fully explain how the library works.
+
+Here is some example code to help get you started:
+
+Using MongoDB:
+
+```java
+import java.io.IOException;
+import java.net.URI;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import org.junit.Test;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.ReadPreference;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+
+public class LockClientExample {
+    @Test
+    public void usageExample() throws InterruptedException, IOException {
+        MongoClient mongo;
+        // Connect to MongoDB
+        MongoClientSettings settings = MongoClientSettings.builder()
+                                            .readPreference(ReadPreference.nearest())
+                                            .applyConnectionString(new ConnectionString("mongodb://localhost:27017"))
+                                            .build();
+
+        mongo = MongoClients.create(settings);
+        
+        MongoDBLockClientOptionsBuilder builder = new MongoDBLockClientOptionsBuilder(mongo)
+                                                        .withCreateHeartbeatBackgroundThread(true)
+                                                        .withHeartbeatPeriod(3L)
+                                                        .withLeaseDuration(10L)
+                                                        .withOwnerName("John Doe")
+                                                        .withTimeUnit(TimeUnit.SECONDS);
+
+        MongoDBLockClient client = new MongoDBLockClient(builder.build());
+
+        AcquireLockOptionsBuilder acquireLockOptionsBuilder = new AcquireLockOptionsBuilder("asdf")
+                                                            .withAcquireOnlyIfLockAlreadyExists(false)
+                                                            .withDeleteLockOnRelease(false)
+                                                            .withReentrant(false);
+
+        GetLockOptionsBuilder getLockOptionsBuilder = new GetLockOptionsBuilder("asdf");
+                                        
+        try {
+            Optional<LockItem> putOptional = client.tryAcquireLock(acquireLockOptionsBuilder.build());
+            Optional<LockItem> getOptional = client.getLock(getLockOptionsBuilder.build());
+
+
+            if (getOptional.isPresent()) {
+                ReleaseLockOptions release = new ReleaseLockOptions(getOptional.get(), true, true, Optional.empty());
+                client.releaseLock(release);
+            } else {
+                throw new Exception("Unable to retrieve lock on '" + getOptional.get().getPartitionKey());
+            }
+
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
 ```
 
-Then, you need to set up a DynamoDB table that has a hash key on a key with the name `key`.
-For your convenience, there is a static method in the AmazonDynamoDBLockClient class called
-`createLockTableInDynamoDB` that you can use to set up your table, but it is also possible to set
-up the table in the AWS Console. The table should be created in advance, since it takes a couple minutes
-for DynamoDB to provision your table for you. The AmazonDynamoDBLockClient has JavaDoc comments that fully
-explain how the library works. Here is some example code to get you started:
+Using DynamoDB:
 
 ```java
 import java.io.IOException;

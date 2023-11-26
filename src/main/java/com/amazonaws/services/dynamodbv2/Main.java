@@ -56,17 +56,18 @@ public class Main {
         GetLockOptionsBuilder getLockOptionsBuilder = new GetLockOptionsBuilder("asdf");
                                         
         try {
-            LockItem put = client.acquireLock(acquireLockOptionsBuilder.build());
-            
-            Optional<LockItem> optional = client.getLock(getLockOptionsBuilder.build());
-            LockItem get = optional.isPresent() ? optional.get() : null;
+            Optional<LockItem> putOptional = client.tryAcquireLock(acquireLockOptionsBuilder.build());
+            Optional<LockItem> getOptional = client.getLock(getLockOptionsBuilder.build());
 
-            logger.info("Put LockItem: " + put.toString());
-            logger.info("Get LockItem: " + get.toString());
+            logger.info("Put LockItem: " + (putOptional.isPresent() ? putOptional.get() : "null"));
+            logger.info("Get LockItem: " + (getOptional.isPresent() ? getOptional.get() : "null"));
 
-            ReleaseLockOptions release = new ReleaseLockOptions(get, true, true, Optional.empty());
-            
-            logger.info("Release lock on '" + get.getPartitionKey() + "': " + client.releaseLock(release));
+            if (getOptional.isPresent()) {
+                ReleaseLockOptions release = new ReleaseLockOptions(getOptional.get(), true, true, Optional.empty());
+                logger.info("Release lock on '" + getOptional.get().getPartitionKey() + "': " + client.releaseLock(release));
+            } else {
+                logger.info("Unable to retrieve lock on '" + getOptional.get().getPartitionKey());
+            }
 
         } catch (InterruptedException ex) {
             ex.printStackTrace();
