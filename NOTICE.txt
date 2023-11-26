@@ -1,2 +1,2 @@
-DynamoDB Lock Client
+Distributed Lock Client
 Copyright 2013 - 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
