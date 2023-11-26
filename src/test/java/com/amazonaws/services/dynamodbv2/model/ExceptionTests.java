@@ -61,7 +61,6 @@ public class ExceptionTests {
 
     @Test
     public void constructorWithMessage_LockCurrentlyUnavailableException() {
-        final IllegalArgumentException iae = new IllegalArgumentException();
         LockCurrentlyUnavailableException e = new LockCurrentlyUnavailableException("message");
         assertEquals("message", e.getMessage());
     }

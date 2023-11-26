@@ -24,10 +24,10 @@ import static java.util.stream.Collectors.toList;
 /**
  * Lazy-loaded. Not immutable. Not thread safe.
  */
-final class LockItemPaginatedScanIterator extends LockItemPaginatedIterator {
+final class AmazonDynamoDBLockItemScanIterator extends LockItemIterator {
     private final DynamoDbClient dynamoDB;
     private volatile ScanRequest scanRequest;
-    private final LockItemFactory lockItemFactory;
+    private final AmazonDynamoDBLockItemFactory lockItemFactory;
 
     /**
      * Initially null to indicate that no pages have been loaded yet.
@@ -37,12 +37,13 @@ final class LockItemPaginatedScanIterator extends LockItemPaginatedIterator {
      */
     private volatile ScanResponse scanResponse = null;
 
-    LockItemPaginatedScanIterator(final DynamoDbClient dynamoDB, final ScanRequest scanRequest, final LockItemFactory lockItemFactory) {
+    AmazonDynamoDBLockItemScanIterator(final DynamoDbClient dynamoDB, final ScanRequest scanRequest, final AmazonDynamoDBLockItemFactory lockItemFactory) {
         this.dynamoDB = Objects.requireNonNull(dynamoDB, "dynamoDB must not be null");
         this.scanRequest = Objects.requireNonNull(scanRequest, "scanRequest must not be null");
         this.lockItemFactory = Objects.requireNonNull(lockItemFactory, "lockItemFactory must not be null");
     }
 
+    @Override
     protected boolean hasAnotherPageToLoad() {
         if (!this.hasLoadedFirstPage()) {
             return true;
@@ -51,10 +52,12 @@ final class LockItemPaginatedScanIterator extends LockItemPaginatedIterator {
         return this.scanResponse.lastEvaluatedKey() != null && !this.scanResponse.lastEvaluatedKey().isEmpty();
     }
 
+    @Override
     protected boolean hasLoadedFirstPage() {
         return this.scanResponse != null;
     }
 
+    @Override
     protected void loadNextPageIntoResults() {
         this.scanResponse = this.dynamoDB.scan(this.scanRequest);
 

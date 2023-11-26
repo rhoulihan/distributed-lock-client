@@ -21,7 +21,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import org.bson.Document;
+
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 
 /**
  * Provides options for acquiring a lock when calling the acquireLock() method.
@@ -40,11 +43,15 @@ public class AcquireLockOptions {
     private final Long refreshPeriod;
     private final Long additionalTimeToWaitForLock;
     private final TimeUnit timeUnit;
-    private final Map<String, AttributeValue> additionalAttributes;
+    private final Map<String, Object> additionalAttributes;
     private final Boolean updateExistingLockRecord;
     private final Boolean acquireReleasedLocksConsistently;
     private final Optional<SessionMonitor> sessionMonitor;
     private final Boolean reentrant;
+
+    public UpdateItemRequest updateRequest = null;
+    public PutItemRequest putRequest = null;
+    public Document document = null;
 
     /**
      * Setting this flag to true will prevent the thread from being blocked (put to sleep) for the lease duration and
@@ -68,7 +75,7 @@ public class AcquireLockOptions {
         private Long refreshPeriod;
         private Long additionalTimeToWaitForLock;
         private TimeUnit timeUnit;
-        private Map<String, AttributeValue> additionalAttributes;
+        private Map<String, Object> additionalAttributes;
         private Boolean updateExistingLockRecord;
         private Boolean acquireReleasedLocksConsistently;
         private Boolean reentrant;
@@ -191,7 +198,7 @@ public class AcquireLockOptions {
          * @param additionalAttributes an arbitrary map of attributes to store with the lock row to be acquired
          * @return a reference to this builder for fluent method chaining
          */
-        public AcquireLockOptionsBuilder withAdditionalAttributes(final Map<String, AttributeValue> additionalAttributes) {
+        public AcquireLockOptionsBuilder withAdditionalAttributes(final Map<String, Object> additionalAttributes) {
             this.additionalAttributes = additionalAttributes;
             return this;
         }
@@ -359,7 +366,7 @@ public class AcquireLockOptions {
 
     private AcquireLockOptions(final String partitionKey, final Optional<String> sortKey, final Optional<ByteBuffer> data, final Boolean replaceData,
        final Boolean deleteLockOnRelease, final Boolean acquireOnlyIfLockAlreadyExists, final Long refreshPeriod, final Long additionalTimeToWaitForLock,
-       final TimeUnit timeUnit, final Map<String, AttributeValue> additionalAttributes, final Optional<SessionMonitor> sessionMonitor,
+       final TimeUnit timeUnit, final Map<String, Object> additionalAttributes, final Optional<SessionMonitor> sessionMonitor,
        final Boolean updateExistingLockRecord, final Boolean shouldSkipBlockingWait, final Boolean acquireReleasedLocksConsistently, Boolean reentrant) {
        this.partitionKey = partitionKey;
        this.sortKey = sortKey;
@@ -424,7 +431,7 @@ public class AcquireLockOptions {
       return this.reentrant;
     }
 
-    Map<String, AttributeValue> getAdditionalAttributes() {
+    Map<String, Object> getAdditionalAttributes() {
         return this.additionalAttributes;
     }
 

@@ -18,6 +18,6 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.Map;
 
-interface LockItemFactory {
+interface AmazonDynamoDBLockItemFactory {
     LockItem create(Map<String, AttributeValue> item);
 }

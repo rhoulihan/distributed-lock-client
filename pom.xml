@@ -105,6 +105,11 @@
     </licenses>
     <dependencies>
         <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-sync</artifactId>
+        <version>4.11.1</version>
+    </dependency>
+        <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>dynamodb</artifactId>
             <version>${aws.java.sdk.version}</version>
@@ -208,6 +213,37 @@
             <version>${log4j-core.version}</version>
             <scope>test</scope>
         </dependency>
+    
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>3.11.0</version>
+      </dependency>
+    
+    
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>3.11.0</version>
+      </dependency>
+    
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>3.11.0</version>
+      </dependency>
+    
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>3.11.0</version>
+      </dependency>
+    
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>3.11.0</version>
+      </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -438,6 +474,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
                 <configuration>
+                    <!-- Allow JUnit to access the test classes -->
+                    <argLine>--add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED</argLine>
                     <excludes>${integration-test.category}</excludes>
                     <systemPropertyVariables>
                         <jacoco-agent.destfile>${jacoco.ut.execution.data.file}</jacoco-agent.destfile>

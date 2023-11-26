@@ -44,18 +44,18 @@ public class LockItemPaginatedScanIteratorTest {
     @Mock
     DynamoDbClient dynamodb;
     @Mock
-    LockItemFactory factory;
+    AmazonDynamoDBLockItemFactory factory;
 
     @Test(expected = UnsupportedOperationException.class)
     public void remove_throwsUnsupportedOperationException() {
-        LockItemPaginatedScanIterator sut = new LockItemPaginatedScanIterator(dynamodb, ScanRequest.builder().build(), factory);
+        AmazonDynamoDBLockItemScanIterator sut = new AmazonDynamoDBLockItemScanIterator(dynamodb, ScanRequest.builder().build(), factory);
         sut.remove();
     }
 
     @Test(expected = NoSuchElementException.class)
     public void next_whenDoesNotHaveNext_throwsNoSuchElementException() {
         ScanRequest request = ScanRequest.builder().build();
-        LockItemPaginatedScanIterator sut = new LockItemPaginatedScanIterator(dynamodb, request, factory);
+        AmazonDynamoDBLockItemScanIterator sut = new AmazonDynamoDBLockItemScanIterator(dynamodb, request, factory);
         List<Map<String, AttributeValue>> list1 = new ArrayList<>();
         list1.add(new HashMap<>());
         when(dynamodb.scan(ArgumentMatchers.<ScanRequest>any()))

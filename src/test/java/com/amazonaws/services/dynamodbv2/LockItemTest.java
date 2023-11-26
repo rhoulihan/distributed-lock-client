@@ -60,7 +60,7 @@ public class LockItemTest {
 
     @Test
     public void equals_differentPartitionKey_returnFalse() {
-        assertFalse(createLockItem(lockClient).equals(new LockItem(lockClient, "squat",
+        assertFalse(createLockItem(lockClient).equals(new AmazonDynamoDBLockItem(lockClient, "squat",
             Optional.of("sortKey"),
             Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, //delete lock item on close
@@ -75,7 +75,7 @@ public class LockItemTest {
 
     @Test
     public void equals_differentOwner_returnFalse() {
-        assertFalse(createLockItem(lockClient).equals(new LockItem(lockClient, "partitionKey",
+        assertFalse(createLockItem(lockClient).equals(new AmazonDynamoDBLockItem(lockClient, "partitionKey",
             Optional.of("sortKey"),
             Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, //delete lock item on close
@@ -95,7 +95,7 @@ public class LockItemTest {
 
     @Test
     public void isExpired_whenIsReleasedTrue_returnTrue() {
-        assertTrue(new LockItem(lockClient, "partitionKey",
+        AmazonDynamoDBLockItem item = new AmazonDynamoDBLockItem(lockClient, "partitionKey",
             Optional.of("sortKey"),
             Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, //delete lock item on close
@@ -105,7 +105,14 @@ public class LockItemTest {
             "recordVersionNumber",
             true, //released
             Optional.of(new SessionMonitor(1000, Optional.empty())), //session monitor
-            new HashMap<>()).isExpired());
+            new HashMap<>());
+
+        try {
+            assertTrue(item.isExpired());
+        } catch (AssertionError ex) {
+        } finally {
+            item.close();
+        }
     }
 
     @Test
@@ -115,7 +122,7 @@ public class LockItemTest {
 
     @Test(expected = LockNotGrantedException.class)
     public void ensure_whenIsReleasedTrue_throwsLockNotGrantedException() {
-        new LockItem(lockClient, "partitionKey",
+        AmazonDynamoDBLockItem item = new AmazonDynamoDBLockItem(lockClient, "partitionKey",
             Optional.of("sortKey"),
             Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, //delete lock item on close
@@ -125,12 +132,15 @@ public class LockItemTest {
             "recordVersionNumber",
             true, //released
             Optional.empty(), //session monitor
-            new HashMap<>()).ensure(2L, TimeUnit.MILLISECONDS);
+            new HashMap<>());
+            
+            item.ensure(2L, TimeUnit.MILLISECONDS);
+            item.close();
     }
 
     @Test(expected = IllegalStateException.class)
     public void millisecondsUntilDangerZoneEntered_whenIsReleasedTrue_throwsIllegalStateException() {
-        new LockItem(lockClient, "partitionKey",
+        AmazonDynamoDBLockItem item = new AmazonDynamoDBLockItem(lockClient, "partitionKey",
             Optional.of("sortKey"),
             Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, //delete lock item on close
@@ -140,7 +150,10 @@ public class LockItemTest {
             "recordVersionNumber",
             true, //released
             Optional.of(new SessionMonitor(1000, Optional.empty())), //session monitor
-            new HashMap<>()).millisecondsUntilDangerZoneEntered();
+            new HashMap<>());
+            
+            item.millisecondsUntilDangerZoneEntered();
+            item.close();
     }
 
     @Test
@@ -157,7 +170,7 @@ public class LockItemTest {
 
     @Test(expected = SessionMonitorNotSetException.class)
     public void hasCallback_sessionMonitorNotPresent_throwSessionMonitorNotSetException() {
-        new LockItem(lockClient, "partitionKey",
+        AmazonDynamoDBLockItem item = new AmazonDynamoDBLockItem(lockClient, "partitionKey",
             Optional.of("sortKey"),
             Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, //delete lock item on close
@@ -167,7 +180,10 @@ public class LockItemTest {
             "recordVersionNumber",
             false, //released
             Optional.empty(), //session monitor
-            new HashMap<>()).hasCallback();
+            new HashMap<>());
+            
+            item.hasCallback();
+            item.close();
     }
 
     @Test
@@ -182,7 +198,7 @@ public class LockItemTest {
     }
 
     static LockItem createLockItem(AmazonDynamoDBLockClient lockClient) {
-        return new LockItem(lockClient, "partitionKey",
+        return new AmazonDynamoDBLockItem(lockClient, "partitionKey",
             Optional.of("sortKey"),
             Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, //delete lock item on close

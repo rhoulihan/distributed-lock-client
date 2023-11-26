@@ -35,29 +35,29 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for {@link LockItemPaginatedQueryIterator} that test for
- * {@link LockItemPaginatedQueryIterator#next()}, {@link LockItemPaginatedQueryIterator#hasNext()}
- * and {@link LockItemPaginatedQueryIterator#remove()}
+ * Unit tests for {@link AmazonDynamoDBLockItemQueryIterator} that test for
+ * {@link AmazonDynamoDBLockItemQueryIterator#next()}, {@link AmazonDynamoDBLockItemQueryIterator#hasNext()}
+ * and {@link AmazonDynamoDBLockItemQueryIterator#remove()}
  */
 @RunWith(MockitoJUnitRunner.class)
 public class LockItemPaginatedQueryIteratorTest extends TestCase {
   @Mock
   DynamoDbClient dynamodb;
   @Mock
-  LockItemFactory factory;
+  AmazonDynamoDBLockItemFactory factory;
 
   @Test(expected = UnsupportedOperationException.class)
   public void remove_throwsUnsupportedOperationException() {
-    LockItemPaginatedQueryIterator
-        sut = new LockItemPaginatedQueryIterator(dynamodb, QueryRequest.builder().build(), factory);
+    AmazonDynamoDBLockItemQueryIterator
+        sut = new AmazonDynamoDBLockItemQueryIterator(dynamodb, QueryRequest.builder().build(), factory);
     sut.remove();
   }
 
   @Test(expected = NoSuchElementException.class)
   public void next_whenDoesNotHaveNext_throwsNoSuchElementException() {
     QueryRequest request = QueryRequest.builder().build();
-    LockItemPaginatedQueryIterator
-        sut = new LockItemPaginatedQueryIterator(dynamodb, request, factory);
+    AmazonDynamoDBLockItemQueryIterator
+        sut = new AmazonDynamoDBLockItemQueryIterator(dynamodb, request, factory);
     List<Map<String, AttributeValue>> items = new ArrayList<>();
     items.add(new HashMap<>());
     when(dynamodb.query(ArgumentMatchers.<QueryRequest>any()))
@@ -71,8 +71,8 @@ public class LockItemPaginatedQueryIteratorTest extends TestCase {
   @Test
   public void next_whenMultiplePages_shouldReturnAll() {
     QueryRequest request = QueryRequest.builder().build();
-    LockItemPaginatedQueryIterator
-        sut = new LockItemPaginatedQueryIterator(dynamodb, request, factory);
+    AmazonDynamoDBLockItemQueryIterator
+        sut = new AmazonDynamoDBLockItemQueryIterator(dynamodb, request, factory);
 
     assertFalse(sut.hasLoadedFirstPage());
 
@@ -107,8 +107,8 @@ public class LockItemPaginatedQueryIteratorTest extends TestCase {
   @Test
   public void next_whenMultipleItemsInOnePage_shouldReturnAll() {
     QueryRequest request = QueryRequest.builder().build();
-    LockItemPaginatedQueryIterator
-        sut = new LockItemPaginatedQueryIterator(dynamodb, request, factory);
+    AmazonDynamoDBLockItemQueryIterator
+        sut = new AmazonDynamoDBLockItemQueryIterator(dynamodb, request, factory);
 
     assertFalse(sut.hasLoadedFirstPage());
 
@@ -138,8 +138,8 @@ public class LockItemPaginatedQueryIteratorTest extends TestCase {
   @Test
   public void hasNext_whenMultiplePages_shouldReturnTrueBeforeLastOne() {
     QueryRequest request = QueryRequest.builder().build();
-    LockItemPaginatedQueryIterator
-        sut = new LockItemPaginatedQueryIterator(dynamodb, request, factory);
+    AmazonDynamoDBLockItemQueryIterator
+        sut = new AmazonDynamoDBLockItemQueryIterator(dynamodb, request, factory);
 
     assertFalse(sut.hasLoadedFirstPage());
 
@@ -173,8 +173,8 @@ public class LockItemPaginatedQueryIteratorTest extends TestCase {
   @Test
   public void hasNext_whenMultipleItemsInOnePage_shouldReturnTrueBeforeLastOne() {
     QueryRequest request = QueryRequest.builder().build();
-    LockItemPaginatedQueryIterator
-        sut = new LockItemPaginatedQueryIterator(dynamodb, request, factory);
+    AmazonDynamoDBLockItemQueryIterator
+        sut = new AmazonDynamoDBLockItemQueryIterator(dynamodb, request, factory);
 
     assertFalse(sut.hasLoadedFirstPage());
 

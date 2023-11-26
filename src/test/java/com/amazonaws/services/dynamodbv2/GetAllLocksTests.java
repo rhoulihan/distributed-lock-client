@@ -55,7 +55,7 @@ public class GetAllLocksTests extends InMemoryLockClientTester {
     @Test
     public void testGetAllLocksFromDynamoDBNoLocks() throws LockNotGrantedException, InterruptedException, IOException {
         final boolean deleteOnRelease = false;
-        final List<LockItem> allLocksFromDynamoDB = this.lockClient.getAllLocksFromDynamoDB(deleteOnRelease).collect(toList());
+        final List<LockItem> allLocksFromDynamoDB = this.lockClient.getAllLocksFromDB(deleteOnRelease).collect(toList());
 
         assertEquals(Collections.emptyList(), allLocksFromDynamoDB);
     }
@@ -67,7 +67,7 @@ public class GetAllLocksTests extends InMemoryLockClientTester {
         final LockItem singleLock = this.lockClient.acquireLock(options);
 
         final boolean deleteOnRelease = false;
-        List<LockItem> allLocksFromDynamoDB = this.lockClient.getAllLocksFromDynamoDB(deleteOnRelease).collect(toList());
+        List<LockItem> allLocksFromDynamoDB = this.lockClient.getAllLocksFromDB(deleteOnRelease).collect(toList());
 
         assertEquals(1, allLocksFromDynamoDB.size());
 
@@ -78,7 +78,7 @@ public class GetAllLocksTests extends InMemoryLockClientTester {
 
         this.lockClient.getLock("Test 1", Optional.empty()).get().close();
 
-        allLocksFromDynamoDB = this.lockClient.getAllLocksFromDynamoDB(deleteOnRelease).collect(toList());
+        allLocksFromDynamoDB = this.lockClient.getAllLocksFromDB(deleteOnRelease).collect(toList());
         assertEquals(Collections.emptyList(), allLocksFromDynamoDB);
     }
 
@@ -92,7 +92,7 @@ public class GetAllLocksTests extends InMemoryLockClientTester {
         final LockItem secondLock = this.lockClient.acquireLock(options2);
 
         final boolean deleteOnRelease = false;
-        List<LockItem> allLocksFromDynamoDB = this.lockClient.getAllLocksFromDynamoDB(deleteOnRelease).collect(toList());
+        List<LockItem> allLocksFromDynamoDB = this.lockClient.getAllLocksFromDB(deleteOnRelease).collect(toList());
 
         assertEquals(2, allLocksFromDynamoDB.size());
 
@@ -110,7 +110,7 @@ public class GetAllLocksTests extends InMemoryLockClientTester {
 
         firstLock.close();
 
-        allLocksFromDynamoDB = this.lockClient.getAllLocksFromDynamoDB(deleteOnRelease).collect(toList());
+        allLocksFromDynamoDB = this.lockClient.getAllLocksFromDB(deleteOnRelease).collect(toList());
 
         assertEquals(1, allLocksFromDynamoDB.size());
         retrievedLock = allLocksFromDynamoDB.get(0);
@@ -120,7 +120,7 @@ public class GetAllLocksTests extends InMemoryLockClientTester {
 
         secondLock.close();
 
-        allLocksFromDynamoDB = this.lockClient.getAllLocksFromDynamoDB(deleteOnRelease).collect(toList());
+        allLocksFromDynamoDB = this.lockClient.getAllLocksFromDB(deleteOnRelease).collect(toList());
         assertEquals(Collections.emptyList(), allLocksFromDynamoDB);
     }
 
@@ -148,7 +148,7 @@ public class GetAllLocksTests extends InMemoryLockClientTester {
         }
 
         final boolean deleteOnRelease = false;
-        List<LockItem> allLocksFromDynamoDB = this.lockClient.getAllLocksFromDynamoDB(deleteOnRelease).collect(toList());
+        List<LockItem> allLocksFromDynamoDB = this.lockClient.getAllLocksFromDB(deleteOnRelease).collect(toList());
 
         assertEquals(acquiredLockItemsByKey.size(), allLocksFromDynamoDB.size());
 
@@ -160,7 +160,7 @@ public class GetAllLocksTests extends InMemoryLockClientTester {
             acquiredLock.close();
         }
 
-        allLocksFromDynamoDB = this.lockClient.getAllLocksFromDynamoDB(deleteOnRelease).collect(toList());
+        allLocksFromDynamoDB = this.lockClient.getAllLocksFromDB(deleteOnRelease).collect(toList());
         assertEquals(Collections.emptyList(), allLocksFromDynamoDB);
     }
 

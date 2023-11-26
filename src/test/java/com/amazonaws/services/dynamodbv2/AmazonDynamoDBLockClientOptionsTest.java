@@ -17,6 +17,7 @@ package com.amazonaws.services.dynamodbv2;
 import static org.junit.Assert.assertEquals;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,6 +65,12 @@ public class AmazonDynamoDBLockClientOptionsTest {
         previousLockItem.put("leaseDuration", AttributeValue.builder().s("1").build());
         when(dynamodb.getItem(Matchers.<GetItemRequest>any())).thenReturn(GetItemResponse.builder().item(previousLockItem).build());
         LockItem lock = client.acquireLock(AcquireLockOptions.builder("asdf").build());
-        assertEquals(uuid.toString(), lock.getOwnerName());
+        try {
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            assertEquals(uuid.toString(), lock.getOwnerName());
+        }
     }
 }

@@ -137,14 +137,14 @@ public abstract class InMemoryLockClientTester {
     protected static final GetLockOptions GET_LOCK_OPTIONS_DO_NOT_DELETE_ON_RELEASE = GetLockOptions.builder("testKey1").withDeleteLockOnRelease(false).build();
 
     protected DynamoDbClient dynamoDBMock;
-    protected AmazonDynamoDBLockClient lockClient;
-    protected AmazonDynamoDBLockClient lockClientWithHeartbeating;
-    protected AmazonDynamoDBLockClient lockClientForRangeKeyTable;
-    protected AmazonDynamoDBLockClient lockClientWithHeartbeatingForRangeKeyTable;
-    protected AmazonDynamoDBLockClient shortLeaseLockClient;
-    protected AmazonDynamoDBLockClient shortLeaseLockClientWithHeartbeating;
-    protected AmazonDynamoDBLockClient shortLeaseLockClientForRangeKeyTable;
-    protected AmazonDynamoDBLockClient lockClientNoTable;
+    protected LockClient lockClient;
+    protected LockClient lockClientWithHeartbeating;
+    protected LockClient lockClientForRangeKeyTable;
+    protected LockClient lockClientWithHeartbeatingForRangeKeyTable;
+    protected LockClient shortLeaseLockClient;
+    protected LockClient shortLeaseLockClientWithHeartbeating;
+    protected LockClient shortLeaseLockClientForRangeKeyTable;
+    protected LockClient lockClientNoTable;
     protected AmazonDynamoDBLockClientOptions lockClient1Options;
 
     @Before

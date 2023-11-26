@@ -14,104 +14,67 @@
  */
 package com.amazonaws.services.dynamodbv2;
 
-import com.amazonaws.services.dynamodbv2.model.LockNotGrantedException;
 import com.amazonaws.services.dynamodbv2.model.SessionMonitorNotSetException;
 import com.amazonaws.services.dynamodbv2.util.LockClientUtils;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 /**
  * A lock that has been successfully acquired. Provides APIs for releasing, heartbeating, and extending the lock.
  *
  * @author <a href="mailto:slutsker@amazon.com">Sasha Slutsker</a>
  */
-public class LockItem implements Closeable {
-    private final AmazonDynamoDBLockClient client;
-    private final String partitionKey;
-    private final Optional<String> sortKey;
+public abstract class LockItem implements Closeable{
+    protected Optional<ByteBuffer> data;
+    protected String ownerName;
+    protected boolean deleteLockItemOnClose;
+    protected boolean isReleased;
+    protected AtomicLong lookupTime;
+    protected StringBuffer recordVersionNumber;
+    protected AtomicLong leaseDuration;
+    protected Map<String, Object> additionalAttributes;
+    protected LockClient lockClient;
 
-    private Optional<ByteBuffer> data;
-    private final String ownerName;
-    private final boolean deleteLockItemOnClose;
-    private final boolean isReleased;
-    private final AtomicLong lookupTime;
-    private final StringBuffer recordVersionNumber;
-    private final AtomicLong leaseDuration;
-    private final Map<String, AttributeValue> additionalAttributes;
-
-    private final Optional<SessionMonitor> sessionMonitor;
-
-    /**
-     * Creates a lock item representing a given key. This constructor should
-     * only be called by the lock client -- the caller should use the version of
-     * LockItem returned by {@code acquireLock}. In order to enforce this, it is
-     * package-private.
-     *
-     * @param client                        The AmazonDynamoDBLockClient object associated with this lock
-     * @param partitionKey                  The key representing the lock
-     * @param sortKey                       The sort key, if the DynamoDB table supports sort keys (or
-     *                                      Optional.absent otherwise)
-     * @param data                          The data stored in the lock (can be null)
-     * @param deleteLockItemOnClose         Whether or not to delete the lock item when releasing it
-     * @param ownerName                     The owner associated with the lock
-     * @param leaseDuration                 How long the lease for the lock is (in milliseconds)
-     * @param lastUpdatedTimeInMilliseconds How recently the lock was updated (in milliseconds)
-     * @param recordVersionNumber           The current record version number of the lock -- this is
-     *                                      globally unique and changes each time the lock is updated
-     * @param isReleased                    Whether the item in DynamoDB is marked as released, but still
-     *                                      exists in the table
-     * @param sessionMonitor                Optionally, the SessionMonitor object with which to associate
-     *                                      the lock
-     * @param additionalAttributes          Additional attributes that can optionally be stored alongside
-     *                                      the lock
-     */
-    LockItem(final AmazonDynamoDBLockClient client, final String partitionKey, final Optional<String> sortKey, final Optional<ByteBuffer> data, final boolean deleteLockItemOnClose,
-        final String ownerName, final long leaseDuration, final long lastUpdatedTimeInMilliseconds, final String recordVersionNumber, final boolean isReleased,
-        final Optional<SessionMonitor> sessionMonitor, final Map<String, AttributeValue> additionalAttributes) {
-        Objects.requireNonNull(partitionKey, "Cannot create a lock with a null key");
-        Objects.requireNonNull(ownerName, "Cannot create a lock with a null owner");
-        Objects.requireNonNull(sortKey, "Cannot create a lock with a null sortKey (use Optional.empty())");
-        Objects.requireNonNull(data, "Cannot create a lock with a null data (use Optional.empty())");
-        this.client = client;
-        this.partitionKey = partitionKey;
-        this.sortKey = sortKey;
-        this.data = data;
-        this.ownerName = ownerName;
-        this.deleteLockItemOnClose = deleteLockItemOnClose;
-
-        this.leaseDuration = new AtomicLong(leaseDuration);
-        this.lookupTime = new AtomicLong(lastUpdatedTimeInMilliseconds);
-        this.recordVersionNumber = new StringBuffer(recordVersionNumber);
-        this.isReleased = isReleased;
-        this.sessionMonitor = sessionMonitor;
-        this.additionalAttributes = additionalAttributes;
-    }
-
+    protected Optional<SessionMonitor> sessionMonitor;
     /**
      * Returns the key associated with this lock, which is unique for every lock (unless the lock has a sort key, in which case
      * key + sortKey is unique.)
      *
      * @return The key identifying the lock.
      */
-    public String getPartitionKey() {
-        return this.partitionKey;
+    public abstract String getPartitionKey();
+    
+    /**
+     * Releases the lock for others to use.
+     */
+    @Override
+    public void close() {
+        this.lockClient.releaseLock(this);
     }
+
 
     /**
      * Returns the sort key associated with the lock, if there is one.
      *
      * @return The sort key for the lock.
      */
-    public Optional<String> getSortKey() {
-        return this.sortKey;
+    public abstract Optional<String> getSortKey();
+
+    /**
+     * Sends a heartbeat to indicate that the given lock is still being worked on. If using
+     * {@code createHeartbeatBackgroundThread}=true when setting up this object, then this method is unnecessary, because the
+     * background thread will be periodically calling it and sending heartbeats. However, if
+     * {@code createHeartbeatBackgroundThread}=false, then this method must be called to instruct DynamoDB that the lock should
+     * not be expired.
+     * <p>
+     * This is equivalent to calling lockClient.sendHeartbeat(lockItem)
+     */
+    public void sendHeartBeat() {
+        this.lockClient.sendHeartbeat(this);
     }
 
     /**
@@ -126,7 +89,7 @@ public class LockItem implements Closeable {
      *
      * @return The additional attributes that can optionally be stored alongside the lock.
      */
-    public Map<String, AttributeValue> getAdditionalAttributes() {
+    public Map<String, Object> getAdditionalAttributes() {
         return this.additionalAttributes;
     }
 
@@ -180,51 +143,6 @@ public class LockItem implements Closeable {
     }
 
     /**
-     * Releases the lock for others to use.
-     */
-    @Override
-    public void close() {
-        this.client.releaseLock(this);
-    }
-
-    /**
-     * Returns a string representation of this lock.
-     */
-    @Override
-    public String toString() {
-        String dataString = this.data
-            .map(byteBuffer -> new String(byteBuffer.array(), StandardCharsets.UTF_8))
-            .orElse("");
-        return String
-            .format("LockItem{Partition Key=%s, Sort Key=%s, Owner Name=%s, Lookup Time=%d, Lease Duration=%d, "
-                    + "Record Version Number=%s, Delete On Close=%s, Data=%s, Is Released=%s}",
-                this.partitionKey, this.sortKey, this.ownerName, this.lookupTime.get(), this.leaseDuration.get(), this.recordVersionNumber, this.deleteLockItemOnClose,
-                dataString, this.isReleased);
-    }
-
-    /**
-     * Hash code of just the (key, ownerName) as that is what uniquely identifies this lock.
-     */
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(Arrays.asList(this.partitionKey, this.ownerName).toArray());
-    }
-
-    /**
-     * Returns if two locks have the same (key, ownerName)
-     */
-    @Override
-    public boolean equals(final Object other) {
-        if (other == null || !(other instanceof LockItem)) {
-            return false;
-        }
-
-        final LockItem otherLockItem = (LockItem) other;
-        /* key and ownerName should never be null due to a preconditions check */
-        return this.partitionKey.equals(otherLockItem.getPartitionKey()) && this.ownerName.equals(otherLockItem.getOwnerName());
-    }
-
-    /**
      * Returns whether or not the lock is expired, based on the lease duration and when the last heartbeat was sent.
      *
      * @return True if the lock is expired, false otherwise
@@ -246,19 +164,6 @@ public class LockItem implements Closeable {
     }
 
     /**
-     * Sends a heartbeat to indicate that the given lock is still being worked on. If using
-     * {@code createHeartbeatBackgroundThread}=true when setting up this object, then this method is unnecessary, because the
-     * background thread will be periodically calling it and sending heartbeats. However, if
-     * {@code createHeartbeatBackgroundThread}=false, then this method must be called to instruct DynamoDB that the lock should
-     * not be expired.
-     * <p>
-     * This is equivalent to calling lockClient.sendHeartbeat(lockItem)
-     */
-    public void sendHeartBeat() {
-        this.client.sendHeartbeat(this);
-    }
-
-    /**
      * <p>
      * Ensures that this owner has the lock for a specified period of time. If the lock will expire in less than the amount of
      * time passed in, then this method will do nothing. Otherwise, it will set the {@code leaseDuration} to that value and send a
@@ -277,16 +182,7 @@ public class LockItem implements Closeable {
      * @param leaseDurationToEnsure The amount of time to ensure that the lease is granted for
      * @param timeUnit              The time unit for the leaseDuration
      */
-    public void ensure(final long leaseDurationToEnsure, final TimeUnit timeUnit) {
-        Objects.requireNonNull(timeUnit, "TimeUnit cannot be null");
-        if (this.isReleased) {
-            throw new LockNotGrantedException("Lock is released");
-        }
-        final long leaseDurationToEnsureInMilliseconds = timeUnit.toMillis(leaseDurationToEnsure);
-        if (this.leaseDuration.get() - (LockClientUtils.INSTANCE.millisecondTime() - this.lookupTime.get()) <= leaseDurationToEnsureInMilliseconds) {
-            this.client.sendHeartbeat(SendHeartbeatOptions.builder(this).withLeaseDurationToEnsure(leaseDurationToEnsure).withTimeUnit(timeUnit).build());
-        }
-    }
+    public abstract void ensure(final long leaseDurationToEnsure, final TimeUnit timeUnit);
 
     /*
      * Updates the record version number of the lock. This method is package private -- it should only be called by the lock
@@ -318,9 +214,7 @@ public class LockItem implements Closeable {
     /*
      * Returns the unique identifier for the lock so it can be stored in a HashMap under that key
      */
-    String getUniqueIdentifier() {
-        return this.partitionKey + this.sortKey.orElse("");
-    }
+    public abstract String getUniqueIdentifier();
 
     /**
      * Returns whether or not the lock is entering the "danger zone" time

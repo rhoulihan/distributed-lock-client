@@ -202,7 +202,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
+        assertTrue(this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
 
         item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE);
 
@@ -220,12 +220,12 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        item = this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get();
+        item = this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get();
         assertTrue(item.isReleased());
 
         // report a different RVN from whats in ddb
         item.updateRecordVersionNumber(UUID.randomUUID().toString(), 0 ,0);
-        doReturn(Optional.of(item)).when(lockClient).getLockFromDynamoDB(Mockito.any(GetLockOptions.class));
+        doReturn(Optional.of(item)).when(lockClient).getLock(Mockito.any(GetLockOptions.class));
 
         try {
             item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE);
@@ -247,7 +247,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock("testKey1", Optional.of("1")));
-        assertTrue(this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
+        assertTrue(this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
 
         item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_SORT_1);
 
@@ -266,12 +266,12 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock("testKey1", Optional.of("1")));
-        item = this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get();
+        item = this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get();
         assertTrue(item.isReleased());
 
         // report a different RVN from whats in ddb
         item.updateRecordVersionNumber(UUID.randomUUID().toString(), 0 ,0);
-        doReturn(Optional.of(item)).when(lockClientForRangeKeyTable).getLockFromDynamoDB(Mockito.any(GetLockOptions.class));
+        doReturn(Optional.of(item)).when(lockClientForRangeKeyTable).getLock(Mockito.any(GetLockOptions.class));
 
         try {
             item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_SORT_1);
@@ -291,7 +291,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
+        assertTrue(this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
 
         item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_CONSISTENT_DATA_TRUE);
 
@@ -309,12 +309,12 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        item = this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get();
+        item = this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get();
         assertTrue(item.isReleased());
 
         // report a different RVN from whats in ddb
         item.updateRecordVersionNumber(UUID.randomUUID().toString(), 0 ,0);
-        doReturn(Optional.of(item)).when(lockClient).getLockFromDynamoDB(Mockito.any(GetLockOptions.class));
+        doReturn(Optional.of(item)).when(lockClient).getLock(Mockito.any(GetLockOptions.class));
 
         try {
             item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_CONSISTENT_DATA_TRUE);
@@ -334,7 +334,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock("testKey1", Optional.of("1")));
-        assertTrue(this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1")
+        assertTrue(this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1")
                 .withSortKey("1").build()).get().isReleased());
 
         item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_CONSISTENT_DATA_TRUE_SORT_1);
@@ -355,12 +355,12 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock("testKey1", Optional.of("1")));
-        item = this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get();
+        item = this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get();
         assertTrue(item.isReleased());
 
         // report a different RVN from whats in ddb
         item.updateRecordVersionNumber(UUID.randomUUID().toString(), 0 ,0);
-        doReturn(Optional.of(item)).when(lockClientForRangeKeyTable).getLockFromDynamoDB(Mockito.any(GetLockOptions.class));
+        doReturn(Optional.of(item)).when(lockClientForRangeKeyTable).getLock(Mockito.any(GetLockOptions.class));
 
         try {
             item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_CONSISTENT_DATA_TRUE_SORT_1);
@@ -380,7 +380,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock(lockPartitionKey, Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).build()).get().isReleased());
+        assertTrue(this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).build()).get().isReleased());
 
         item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_UPDATE_EXISTING_TRUE);
 
@@ -399,12 +399,12 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock(lockPartitionKey, Optional.empty()));
-        item = this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).build()).get();
+        item = this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).build()).get();
         assertTrue(item.isReleased());
 
         // report a different RVN from whats in ddb
         item.updateRecordVersionNumber(UUID.randomUUID().toString(), 0 ,0);
-        doReturn(Optional.of(item)).when(lockClient).getLockFromDynamoDB(Mockito.any(GetLockOptions.class));
+        doReturn(Optional.of(item)).when(lockClient).getLock(Mockito.any(GetLockOptions.class));
 
         try {
             item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_UPDATE_EXISTING_TRUE);
@@ -429,7 +429,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock(lockPartitionKey, Optional.of("1")));
-        assertTrue(this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey)
+        assertTrue(this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey)
                 .withSortKey("1").build()).get().isReleased());
 
         item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_UPDATE_EXISTING_TRUE_SORT_1);
@@ -452,12 +452,12 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock(lockPartitionKey, Optional.of("1")));
-        item = this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).withSortKey("1").build()).get();
+        item = this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).withSortKey("1").build()).get();
         assertTrue(item.isReleased());
 
         // report a different RVN from whats in ddb
         item.updateRecordVersionNumber(UUID.randomUUID().toString(), 0 ,0);
-        doReturn(Optional.of(item)).when(lockClient).getLockFromDynamoDB(Mockito.any(GetLockOptions.class));
+        doReturn(Optional.of(item)).when(lockClient).getLock(Mockito.any(GetLockOptions.class));
 
         try {
             item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_UPDATE_EXISTING_TRUE_SORT_1);
@@ -480,7 +480,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock(lockPartitionKey, Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).build()).get().isReleased());
+        assertTrue(this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).build()).get().isReleased());
 
         item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_UPDATE_EXISTING_TRUE_CONSISTENT_DATA_TRUE);
 
@@ -499,12 +499,12 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock(lockPartitionKey, Optional.empty()));
-        item = this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).build()).get();
+        item = this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).build()).get();
         assertTrue(item.isReleased());
 
         // report a different RVN from whats in ddb
         item.updateRecordVersionNumber(UUID.randomUUID().toString(), 0 ,0);
-        doReturn(Optional.of(item)).when(lockClient).getLockFromDynamoDB(Mockito.any(GetLockOptions.class));
+        doReturn(Optional.of(item)).when(lockClient).getLock(Mockito.any(GetLockOptions.class));
 
         try {
             item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_UPDATE_EXISTING_TRUE_CONSISTENT_DATA_TRUE);
@@ -526,7 +526,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock(lockPartitionKey, Optional.of("1")));
-        assertTrue(this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).withSortKey("1").build()).get().isReleased());
+        assertTrue(this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).withSortKey("1").build()).get().isReleased());
 
         item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_UPDATE_EXISTING_TRUE_CONSISTENT_DATA_TRUE_SORT_1);
 
@@ -547,12 +547,12 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock(lockPartitionKey, Optional.of("1")));
-        item = this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).withSortKey("1").build()).get();
+        item = this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder(lockPartitionKey).withSortKey("1").build()).get();
         assertTrue(item.isReleased());
 
         // report a different RVN from whats in ddb
         item.updateRecordVersionNumber(UUID.randomUUID().toString(), 0 ,0);
-        doReturn(Optional.of(item)).when(lockClientForRangeKeyTable).getLockFromDynamoDB(Mockito.any(GetLockOptions.class));
+        doReturn(Optional.of(item)).when(lockClientForRangeKeyTable).getLock(Mockito.any(GetLockOptions.class));
 
         try {
             item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_REPLACE_DATA_FALSE_UPDATE_EXISTING_TRUE_CONSISTENT_DATA_TRUE_SORT_1);
@@ -667,7 +667,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
+        assertTrue(this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
 
         item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_ONLY_IF_LOCK_EXIST_UPDATE_FALSE);
         assertEquals(data, byteBufferToString(item.getData().get()));
@@ -684,7 +684,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
+        assertTrue(this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
 
         item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_ONLY_IF_LOCK_EXIST_UPDATE_FALSE_CONSISTENT_DATA_TRUE);
         assertEquals(data, byteBufferToString(item.getData().get()));
@@ -702,7 +702,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock("testKey1", Optional.of("1")));
-        assertTrue(this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
+        assertTrue(this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
 
         item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_ONLY_IF_LOCK_EXIST_UPDATE_FALSE_SORT_1);
         assertEquals(data, byteBufferToString(item.getData().get()));
@@ -720,7 +720,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock("testKey1", Optional.of("1")));
-        assertTrue(this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
+        assertTrue(this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
 
         item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_ONLY_IF_LOCK_EXIST_UPDATE_FALSE_CONSISTENT_DATA_TRUE_SORT_1);
         assertEquals(data, byteBufferToString(item.getData().get()));
@@ -736,7 +736,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
+        assertTrue(this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
 
         item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_ONLY_IF_LOCK_EXIST_UPDATE_TRUE);
         assertEquals(data, byteBufferToString(item.getData().get()));
@@ -752,7 +752,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClient.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
+        assertTrue(this.lockClient.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").build()).get().isReleased());
 
         item = this.lockClient.acquireLock(ACQUIRE_LOCK_OPTIONS_ONLY_IF_LOCK_EXIST_UPDATE_TRUE_CONSISTENT_DATA_TRUE);
         assertEquals(data, byteBufferToString(item.getData().get()));
@@ -769,7 +769,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock("testKey1", Optional.of("1")));
-        assertTrue(this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
+        assertTrue(this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
 
         item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_ONLY_IF_LOCK_EXIST_UPDATE_TRUE_SORT_1);
         assertEquals(data, byteBufferToString(item.getData().get()));
@@ -786,7 +786,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         this.lockClientForRangeKeyTable.releaseLock(ReleaseLockOptions.builder(item).withDeleteLock(false).build());
         assertEquals(Optional.empty(), this.lockClientForRangeKeyTable.getLock("testKey1", Optional.of("1")));
-        assertTrue(this.lockClientForRangeKeyTable.getLockFromDynamoDB(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
+        assertTrue(this.lockClientForRangeKeyTable.getLock(new GetLockOptions.GetLockOptionsBuilder("testKey1").withSortKey("1").build()).get().isReleased());
 
         item = this.lockClientForRangeKeyTable.acquireLock(ACQUIRE_LOCK_OPTIONS_ONLY_IF_LOCK_EXIST_UPDATE_TRUE_CONSISTENT_DATA_TRUE_SORT_1);
         assertEquals(data, byteBufferToString(item.getData().get()));
@@ -810,7 +810,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
         final String additionalValue = "doNotDelete";
         final String lockPartitionKey = "testKey1";
         final String lockSortKey = "1";
-        final Map<String, AttributeValue> additional = new HashMap<>();
+        final Map<String, Object> additional = new HashMap<>();
         additional.put(additionalValue, AttributeValue.builder().s(additionalValue).build());
         //acquire first lock
         final Optional<LockItem> lockItem1 = lockClient1.tryAcquireLock(AcquireLockOptions.builder(lockPartitionKey).withSortKey(lockSortKey).withDeleteLockOnRelease(false).withAdditionalAttributes(additional).build());
@@ -862,7 +862,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
         final String additionalValue = "doNotDelete";
         final String lockPartitionKey = "testKey1";
         final String lockSortKey = "1";
-        Map<String, AttributeValue> additional = new HashMap<>();
+        Map<String, Object> additional = new HashMap<>();
         additional.put(additionalValue, AttributeValue.builder().s(additionalValue).build());
 
         final Optional<LockItem> lockItem1 = lockClient1.tryAcquireLock(AcquireLockOptions.builder(lockPartitionKey)
@@ -908,7 +908,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
         //add additional values to verify they are preserved always
         final String additionalValue = "doNotDelete";
         final String lockPartitionKey = "testKey1";
-        Map<String, AttributeValue> additional = new HashMap<>();
+        Map<String, Object> additional = new HashMap<>();
         additional.put(additionalValue, AttributeValue.builder().s(additionalValue).build());
 
         final Optional<LockItem> lockItem1 = lockClient1.tryAcquireLock(AcquireLockOptions.builder(lockPartitionKey)
@@ -1053,10 +1053,10 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
                     .withDeleteLockOnRelease(true).withReplaceData(true).build());
         assertEquals(data1, new String(item.getData().get().array()));
 
-        assertEquals(data1, byteBufferToString(this.lockClient.getLockFromDynamoDB(
+        assertEquals(data1, byteBufferToString(this.lockClient.getLock(
                 GetLockOptions.builder("testKey1").build()).get().getData().get()));
         this.lockClient.sendHeartbeat(SendHeartbeatOptions.builder(item).withData(ByteBuffer.wrap(data2.getBytes())).build());
-        assertEquals(data2, byteBufferToString(this.lockClient.getLockFromDynamoDB(
+        assertEquals(data2, byteBufferToString(this.lockClient.getLock(
                 GetLockOptions.builder("testKey1").build()).get().getData().get()));
         assertEquals(data2, byteBufferToString(this.lockClient.getLock(
             "testKey1", Optional.empty()).get().getData().get()));
@@ -1072,9 +1072,9 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
                     .withDeleteLockOnRelease(true).withReplaceData(true).build());
         assertEquals(data, byteBufferToString(item.getData().get()));
 
-        assertEquals(data, byteBufferToString(this.lockClient.getLockFromDynamoDB(GET_LOCK_OPTIONS_DELETE_ON_RELEASE).get().getData().get()));
+        assertEquals(data, byteBufferToString(this.lockClient.getLock(GET_LOCK_OPTIONS_DELETE_ON_RELEASE).get().getData().get()));
         this.lockClient.sendHeartbeat(SendHeartbeatOptions.builder(item).withDeleteData(true).build());
-        assertEquals(Optional.empty(), this.lockClient.getLockFromDynamoDB(GET_LOCK_OPTIONS_DELETE_ON_RELEASE).get().getData());
+        assertEquals(Optional.empty(), this.lockClient.getLock(GET_LOCK_OPTIONS_DELETE_ON_RELEASE).get().getData());
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()).get().getData());
         item.close();
     }
@@ -1090,8 +1090,8 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
         item.close();
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(GET_LOCK_OPTIONS_DO_NOT_DELETE_ON_RELEASE).get().isReleased());
-        assertEquals(data, byteBufferToString(this.lockClient.getLockFromDynamoDB(GET_LOCK_OPTIONS_DO_NOT_DELETE_ON_RELEASE).get().getData().get()));
+        assertTrue(this.lockClient.getLock(GET_LOCK_OPTIONS_DO_NOT_DELETE_ON_RELEASE).get().isReleased());
+        assertEquals(data, byteBufferToString(this.lockClient.getLock(GET_LOCK_OPTIONS_DO_NOT_DELETE_ON_RELEASE).get().getData().get()));
 
         item = this.lockClient.acquireLock(AcquireLockOptions.builder("testKey1")
                 .withDeleteLockOnRelease(false).withReplaceData(false).build());
@@ -1113,8 +1113,8 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
                 .withData(ByteBuffer.wrap("newData".getBytes())).build());
 
         assertEquals(Optional.empty(), this.lockClient.getLock("testKey1", Optional.empty()));
-        assertTrue(this.lockClient.getLockFromDynamoDB(GET_LOCK_OPTIONS_DO_NOT_DELETE_ON_RELEASE).get().isReleased());
-        assertEquals("newData", byteBufferToString(this.lockClient.getLockFromDynamoDB(
+        assertTrue(this.lockClient.getLock(GET_LOCK_OPTIONS_DO_NOT_DELETE_ON_RELEASE).get().isReleased());
+        assertEquals("newData", byteBufferToString(this.lockClient.getLock(
                 GET_LOCK_OPTIONS_DO_NOT_DELETE_ON_RELEASE).get().getData().get()));
 
         item = this.lockClient.acquireLock(AcquireLockOptions.builder("testKey1")
@@ -1432,18 +1432,22 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
 
     @Test
     public void testAdditionalAttributes() throws LockNotGrantedException, InterruptedException, IOException {
-        final Map<String, AttributeValue> additionalAttributes = new HashMap<String, AttributeValue>();
+        final Map<String, Object> additionalAttributes = new HashMap<String, Object>();
         additionalAttributes.put(TABLE_NAME, AttributeValue.builder().s("ok").build());
         LockItem item = this.lockClient.acquireLock(AcquireLockOptions.builder("testKey1")
                 .withData(ByteBuffer.wrap(TEST_DATA.getBytes()))
                 .withAdditionalAttributes(additionalAttributes)
                 .build());
-        assertTrue(item.getAdditionalAttributes().get(TABLE_NAME).s().equals("ok"));
+        
+        AttributeValue attr = (AttributeValue)item.getAdditionalAttributes().get(TABLE_NAME);
+        assertTrue(attr.s().equals("ok"));
         item = this.lockClient.getLock("testKey1", Optional.empty()).get();
-        assertTrue(item.getAdditionalAttributes().get(TABLE_NAME).s().equals("ok"));
+        attr = (AttributeValue)item.getAdditionalAttributes().get(TABLE_NAME);
+        assertTrue(attr.s().equals("ok"));
         final AmazonDynamoDBLockClient client = new AmazonDynamoDBLockClient(this.lockClient1Options);
         item = client.getLock("testKey1", Optional.empty()).get();
-        assertTrue(item.getAdditionalAttributes().get(TABLE_NAME).s().equals("ok"));
+        attr = (AttributeValue)item.getAdditionalAttributes().get(TABLE_NAME);
+        assertTrue(attr.s().equals("ok"));
         assertTrue(item.getAdditionalAttributes().equals(additionalAttributes));
         client.close();
     }
@@ -1474,7 +1478,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
     }
 
     private void testInvalidAttribute(final String invalidAttribute) throws LockNotGrantedException, InterruptedException {
-        final Map<String, AttributeValue> additionalAttributes = new HashMap<>();
+        final Map<String, Object> additionalAttributes = new HashMap<>();
         additionalAttributes.put(invalidAttribute, AttributeValue.builder().s("ok").build());
         this.lockClient.acquireLock(AcquireLockOptions.builder("testKey1")
                 .withData(ByteBuffer.wrap(TEST_DATA.getBytes()))
@@ -1644,7 +1648,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
                     .build()));
 
         Mockito.doThrow(SdkClientException.builder().message("Client exception acquiring lock").build())
-                .when(testLockClient).getLockFromDynamoDB(ArgumentMatchers.any(GetLockOptions.class));
+                .when(testLockClient).getLock(ArgumentMatchers.any(GetLockOptions.class));
         try {
             testLockClient.acquireLock(AcquireLockOptions.builder(lockName)
                     .withRefreshPeriod(refreshPeriod)
@@ -1653,7 +1657,7 @@ public class BasicLockClientTests extends InMemoryLockClientTester {
                     .build());
         } finally {
             Mockito.verify(testLockClient, Mockito.atLeast(expectedAttempts + 1))
-                    .getLockFromDynamoDB(ArgumentMatchers.any(GetLockOptions.class));
+                    .getLock(ArgumentMatchers.any(GetLockOptions.class));
             testLockClient.close();
         }
     }

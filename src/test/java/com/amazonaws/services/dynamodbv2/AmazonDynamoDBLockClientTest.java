@@ -188,7 +188,7 @@ public class AmazonDynamoDBLockClientTest {
     public void acquireLock_whenLockAlreadyExists_throwIllegalArgumentException() throws InterruptedException {
         setOwnerNameToUuid();
         AmazonDynamoDBLockClient client = getLockClientWithSortKey();
-        Map<String, AttributeValue> additionalAttributes = new HashMap<>();
+        Map<String, Object> additionalAttributes = new HashMap<>();
         additionalAttributes.put("sort", AttributeValue.builder().s("cool").build());
         client.acquireLock(AcquireLockOptions.builder("asdf")
             .withSortKey("sort")
@@ -452,7 +452,7 @@ public class AmazonDynamoDBLockClientTest {
     public void sendHeartbeat_whenDeleteDataTrueAndDataNotNull_throwsIllegalArgumentException() {
         UUID uuid = setOwnerNameToUuid();
         AmazonDynamoDBLockClient client = getLockClient();
-        LockItem item = new LockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
+        LockItem item = new AmazonDynamoDBLockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, uuid.toString(), 1L, 2L, "rvn", false,
             Optional.empty(), null);
         client.sendHeartbeat(SendHeartbeatOptions.builder(item).withDeleteData(true).withData(ByteBuffer.wrap("data".getBytes())).build());
@@ -463,7 +463,7 @@ public class AmazonDynamoDBLockClientTest {
         UUID uuid = setOwnerNameToUuid();
         AmazonDynamoDBLockClient client = getLockClient();
         long lastUpdatedTimeInMilliseconds = 2l;
-        LockItem item = new LockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
+        LockItem item = new AmazonDynamoDBLockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, uuid.toString(), 1L, lastUpdatedTimeInMilliseconds,
             "rvn", false, Optional.empty(), null);
         client.sendHeartbeat(SendHeartbeatOptions.builder(item).withDeleteData(null).withData(ByteBuffer.wrap("data".getBytes())).build());
@@ -474,7 +474,7 @@ public class AmazonDynamoDBLockClientTest {
         setOwnerNameToUuid();
         AmazonDynamoDBLockClient client = getLockClient();
         long lastUpdatedTimeInMilliseconds = Long.MAX_VALUE;
-        LockItem item = new LockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
+        LockItem item = new AmazonDynamoDBLockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, "different owner", 1L, lastUpdatedTimeInMilliseconds,
             "rvn", false, Optional.empty(), null);
         client.sendHeartbeat(SendHeartbeatOptions.builder(item).withDeleteData(null).withData(ByteBuffer.wrap("data".getBytes())).build());
@@ -485,7 +485,7 @@ public class AmazonDynamoDBLockClientTest {
         UUID uuid = setOwnerNameToUuid();
         AmazonDynamoDBLockClient client = getLockClient();
         long lastUpdatedTimeInMilliseconds = Long.MAX_VALUE;
-        LockItem item = new LockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
+        LockItem item = new AmazonDynamoDBLockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, uuid.toString(), 1L, lastUpdatedTimeInMilliseconds,
             "rvn", true, Optional.empty(), null);
         client.sendHeartbeat(SendHeartbeatOptions.builder(item).withDeleteData(null).withData(ByteBuffer.wrap("data".getBytes())).build());
@@ -496,7 +496,7 @@ public class AmazonDynamoDBLockClientTest {
         UUID uuid = setOwnerNameToUuid();
         AmazonDynamoDBLockClient client = getLockClient();
         long lastUpdatedTimeInMilliseconds = Long.MAX_VALUE;
-        LockItem item = new LockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
+        LockItem item = new AmazonDynamoDBLockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
             false, uuid.toString(), 1L, lastUpdatedTimeInMilliseconds,
             "rvn", false, Optional.empty(), null);
         client.sendHeartbeat(SendHeartbeatOptions.builder(item)
@@ -511,7 +511,7 @@ public class AmazonDynamoDBLockClientTest {
         AmazonDynamoDBLockClient client = getLockClient();
         long lastUpdatedTimeInMilliseconds = Long.MAX_VALUE;
         String partitionKey = "partition_key";
-        LockItem item = new LockItem(client, partitionKey, Optional.empty(), Optional.of(ByteBuffer.wrap("data1".getBytes())),
+        LockItem item = new AmazonDynamoDBLockItem(client, partitionKey, Optional.empty(), Optional.of(ByteBuffer.wrap("data1".getBytes())),
             false, uuid.toString(), 1L, lastUpdatedTimeInMilliseconds,
             "rvn", false, Optional.empty(), null);
         assertTrue(item.getData().isPresent());
@@ -534,7 +534,7 @@ public class AmazonDynamoDBLockClientTest {
         AmazonDynamoDBLockClient client = new AmazonDynamoDBLockClient(getLockClientBuilder(null).withHoldLockOnServiceUnavailable(false).build());
 
         long lastUpdatedTimeInMilliseconds = LockClientUtils.INSTANCE.millisecondTime();
-        LockItem item = new LockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
+        LockItem item = new AmazonDynamoDBLockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
                 false, uuid.toString(), 10000L, lastUpdatedTimeInMilliseconds,
                 "rvn", false, Optional.empty(), null);
 
@@ -562,7 +562,7 @@ public class AmazonDynamoDBLockClientTest {
 
         String recordVersionNumber = "rvn";
         long lastUpdatedTimeInMilliseconds = LockClientUtils.INSTANCE.millisecondTime();
-        LockItem lockItem = new LockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
+        LockItem lockItem = new AmazonDynamoDBLockItem(client, "a", Optional.empty(), Optional.of(ByteBuffer.wrap("data".getBytes())),
                 false, uuid.toString(), leaseDuration, lastUpdatedTimeInMilliseconds,
                 recordVersionNumber, false, Optional.empty(), null);
 

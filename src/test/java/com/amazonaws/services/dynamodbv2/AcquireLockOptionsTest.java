@@ -247,7 +247,7 @@ public class AcquireLockOptionsTest {
     @Test
     public void equals_additionalAttributesDifferent_returnsFalse() {
         AcquireLockOptions left = createLockOptions();
-        Map<String, AttributeValue> additionalAttributes = new HashMap<>();
+        Map<String, Object> additionalAttributes = new HashMap<>();
         additionalAttributes.put("asdf", AttributeValue.builder().nul(Boolean.TRUE).build());
         AcquireLockOptions right = AcquireLockOptions.builder("partitionKey")
             .withSortKey("sortKey")
