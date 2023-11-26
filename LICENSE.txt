@@ -1,4 +1,5 @@
 Amazon Software License
+
 1. Definitions
 “Licensor” means any person or entity that distributes its Work.
 
