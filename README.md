@@ -2,10 +2,10 @@
 
 The Distributed Lock Client is a general purpose distributed locking library forked
 from the Amazon DynamoDB Distributed Lock Client project to remove hard
-dependencies on DynamoDB, abstract of the data access layer, and enable support for
-other database platforms. This project introduces support for MongoDB. If you are 
-interested in adding support for other platforms feel free to implement and send a
-pull request.
+dependencies on DynamoDB, implement an abstracted data access layer, and enable
+support forother database platforms. This project introduces support for MongoDB.
+If you are interested in adding support for other platforms feel free to implement
+the classes required for your platform and send a pull request.
 
 The Distributed Lock Client supports both fine-grained and coarse-grained 
 locking as the lock keys can be any arbitrary string, up to a certain 
